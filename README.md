@@ -2,7 +2,7 @@
 Command line utilities for exploring NGS data
 
 Dependencies:  
-numpy
+numpy  
 pandas  
 matplotlib  
 seaborn (Aesthetics only)  
