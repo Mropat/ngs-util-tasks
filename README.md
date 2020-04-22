@@ -6,9 +6,9 @@ numpy
 pandas  
 matplotlib  
 seaborn (Aesthetics only)  
-pybedtools (Wrapper for bedtools utilities in Python)
-click (CLI)
-pytest (To run the test script)
+pybedtools (Wrapper for bedtools utilities in Python)  
+click (CLI)  
+pytest (To run the test script)  
 
 
 python3 **bed_overlap.py**  --in1 --in2 --mo  
