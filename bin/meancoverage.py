@@ -6,16 +6,13 @@ import click
 sns.set()
 
 
-@click.command()
-@click.argument("filename", type=click.Path(exists=True))
-def plot_mean_coverage(filename):
+def read_count_data(filename):
     coverage_df = pd.read_csv(filename, sep="\t")
+    return coverage_df
 
-    if coverage_df["meanCoverage"].mean() == 0:
-        click.echo(f"No coverage in sample {filename}, aborting")
-        return False
 
-    fig, axs = plt.subplots(1, 2)
+def plot_mean_coverage(coverage_df, filename):
+    _, axs = plt.subplots(1, 2)
     axs[0].hist(coverage_df["meanCoverage"], bins=50)
     axs[0].axvline(100, color="red", lw=1)
     axs[0].set_title("meanCoverage")
@@ -34,5 +31,15 @@ def plot_mean_coverage(filename):
     plt.close()
 
 
+@click.command()
+@click.argument("filename", type=click.Path(exists=True))
+def main(filename):
+    coverage_df = read_count_data(filename)
+    if coverage_df["meanCoverage"].mean() == 0:
+        click.echo("No coverage detected, aborting")
+    else:
+        plot_mean_coverage(coverage_df, filename)
+        click.echo("Success!")
+
 if __name__ == "__main__":
-    plot_mean_coverage()
+    main()

@@ -3,29 +3,30 @@ import pybedtools
 import numpy as np
 
 
+class BedSummary:
+    def __init__(self, bedfile):
+        self.total_features = len(bedfile)
+        self.feature_length = [x.stop - x.start for x in bedfile]
+        self.max_span_index = np.argmax(self.feature_length)
+        self.max_span_length = np.max(self.feature_length)
+        self.max_span_name = bedfile[int(self.max_span_index)].name
+        self.covered_bases = sum(x.stop - x.start for x in  bedfile.merge())
+
+
 @click.command()
 @click.argument('bedfiles', nargs=-1, type=click.Path(exists=True))
-def bed_statistics(bedfiles):
-    for path_to_bed in bedfiles:
-        bedfile = pybedtools.BedTool(path_to_bed).remove_invalid().sort()
-        total_features = len(bedfile)
-        feature_length = list(map(lambda x: x.stop - x.start, bedfile))
-        max_span_index = np.argmax(feature_length)
-        max_span_length = np.max(feature_length)
-        max_span_name = bedfile[int(max_span_index)].name
-        max_span_coords = ":".join([str(bedfile[int(max_span_index)].chrom), str(
-            bedfile[int(max_span_index)].start), str(bedfile[int(max_span_index)].end)])
-        merged_bedfile = bedfile.merge()
-        covered_bases = sum(map(lambda x: x.stop - x.start, merged_bedfile))
-
-        click.echo("")
-        click.echo(f"Summary for input {path_to_bed}")
-        click.echo(f"BED features: {total_features}")
-        click.echo(f"BED bases: {covered_bases}")
-        click.echo(f"Longest feature name: {max_span_name}")
-        click.echo(f"Longest feature span: {max_span_length}")
-        click.echo(f"Longest feature coordinates: {max_span_coords}")
+def main(bedfiles):
+    for path in bedfiles:
+        bedfile = pybedtools.BedTool(path).remove_invalid().sort()
+        summary = BedSummary(bedfile)
+        output_string = f"""
+            Summary for input {path}
+            BED features: {summary.total_features}
+            BED bases: {summary.covered_bases}
+            Longest feature name: {summary.max_span_name}
+            Longest feature span: {summary.max_span_length}"""
+        click.echo(output_string)
 
 
 if __name__ == "__main__":
-    bed_statistics()
+    main()
